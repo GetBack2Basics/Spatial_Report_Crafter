@@ -36,5 +36,23 @@ Reference:
 - Reflect reconciliation workflow: https://github.com/GetBack2Basics/014_CSC_Reflect
 - QGIS portal patterns: https://github.com/GetBack2Basics/QGIS_PortalCrafter
 
+## Config-Driven Wherobots Suitability Report Builder
+
+This project now supports config-driven spatial suitability report generation directly querying the Wherobots Spark database.
+
+### Contents Added:
+- `scripts/build_config_report.py`: Generic Python script that runs database queries and injects GeoJSON vector layers from Wherobots.
+- `configs/national_suitability.json`: Configuration mapping SQL queries, table schemas, and state metrics for Macquarie Coal Complex.
+- `templates/national_suitability_report_template.html`: Standalone Leaflet HTML template with layer control, leaderboard, WMS overlays, and aggregate benchmarking tables.
+
+### Usage:
+Ensure your `.env` contains `WHEROBOTS_API_KEY`, then run:
+```bash
+python scripts/build_config_report.py \
+  --config configs/national_suitability.json \
+  --template templates/national_suitability_report_template.html \
+  --output Reconciliation_Review.html
+```
+
 Notes:
 - HTML reports use folium's native basemap controls; only post-process for metadata links and optional custom WMS form.

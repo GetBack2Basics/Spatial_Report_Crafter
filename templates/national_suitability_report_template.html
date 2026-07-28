@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ REPORT_TITLE }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root {
+  --bg-primary: #0b0f19;
+  --bg-secondary: #131a2c;
+  --card-bg: rgba(22, 30, 49, 0.75);
+  --border-color: rgba(59, 130, 246, 0.2);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent-blue: #3b82f6;
+  --accent-green: #10b981;
+  --accent-yellow: #f59e0b;
+  --accent-red: #ef4444;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  margin: 0;
+  padding: 2rem;
+  background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+}
+
+.container {
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.metadata-pill {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: #60a5fa;
+  font-weight: 500;
+}
+
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .grid-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card h2 {
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.5rem;
+}
+
+#map {
+  height: 550px;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent-green);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+tbody tr {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.score-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.score-high {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.score-med {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.score-low {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.section-half {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .section-half {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metric-label {
+  font-weight: 500;
+}
+
+.metric-value {
+  color: var(--accent-blue);
+}
+
+/* Custom styles for Leaflet popups and legends */
+.leaflet-popup-content-wrapper {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+.leaflet-popup-tip {
+  background: var(--bg-secondary) !important;
+}
+.info.legend {
+  background: rgba(19, 26, 44, 0.9);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.info.legend i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.8;
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>{{ REPORT_TITLE }}</h1>
+      <div class="subtitle">{{ REPORT_SUBTITLE }}</div>
+    </div>
+    <div class="metadata-pill">Wherobots Spark Engine</div>
+  </header>
+
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-label">Total Candidates</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="stat-states">0</div>
+      <div class="stat-label">States Benchmarked</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="stat-best">Morwell (#1)</div>
+      <div class="stat-label">Top Candidate</div>
+    </div>
+  </div>
+
+  <div class="grid-dashboard">
+    <div class="card">
+      <h2>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
+        Siting Candidates Map
+      </h2>
+      <div id="map"></div>
+    </div>
+
+    <div class="card">
+      <h2>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        National Candidate Leaderboard
+      </h2>
+      <div style="max-height: 490px; overflow-y: auto;">
+        <table id="candidates-table">
+          <thead>
+            <tr>
+              <th>Town / State</th>
+              <th>Score</th>
+              <th>Power (km)</th>
+              <th>Water (km)</th>
+              <th>Area (ha)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Dynamic Injection -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="color: #10b981;">Ranking Methodology & Logic</h2>
+    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; font-size: 0.95rem; line-height: 1.6;">
+      <div>
+        <p>The candidate sites are scored and ranked according to a <strong>5-Tier Spatial Constraint Model</strong> disaggregated into three primary weighted indices:</p>
+        <ul style="margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+          <li><strong>Power Grid Proximity (50% Weight):</strong> Evaluates proximity to major transmission substations (132kV+). Full points (1.0) are awarded for distances between 100m and 500m. A decay function applies for larger distances, reaching 0.0 at 5km. Setbacks closer than 100m are penalized to 0.7 to satisfy EMF safety/noise requirements.</li>
+          <li><strong>Recycled Water Proximity (30% Weight):</strong> Measures distance to wastewater treatment plants (WWTW) as sustainable cooling resources. Scores decay linearly from 1.0 (at &le;1km) down to 0.0 (at &ge;10km).</li>
+          <li><strong>Available Land Area (20% Weight):</strong> Scores land parcel size for hyperscale development. Land parcels &ge;15 hectares receive a full score of 1.0. Parcels below 3 hectares receive a baseline of 0.1, with a linear score interpolation in between.</li>
+        </ul>
+        <p>All candidates are benchmarked against simulated local/regional baselines (Latrobe Valley in VIC, Collie in WA, and Gladstone in QLD) to position NSW development opportunities within the wider national energy market transition framework.</p>
+      </div>
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 1.25rem; border-radius: 0.75rem;">
+        <h3 style="margin-top: 0; margin-bottom: 0.75rem; color: #fbbf24; font-size: 1.05rem;">Assumptions & Confidence</h3>
+        <ul style="padding-left: 1.25rem; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+          <li><strong>Demographic Anchors:</strong> Demographic statistics disaggregated from ABS 2020 & 2025 SA2 census datasets intersecting the candidates.</li>
+          <li><strong>Land Constraints:</strong> Slope grade calculations exclude land with slopes exceeding 5% grade to prevent excessive earthworks during construction.</li>
+          <li><strong>NSW Ground-Truth:</strong> High Confidence (90%) for Macquarie Coal Complex precinct analysis where local pipelines, rail corridors, and environmental constraints were fully ingested and buffered.</li>
+          <li><strong>National Baselines:</strong> Medium Confidence (75%) for simulated national baselines where candidate coordinates denote centroid regional estimates.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card section-full">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event, 'state-summary')">State Benchmarking</button>
+      <button class="tab-btn" onclick="switchTab(event, 'region-summary')">Regional Aggregates</button>
+    </div>
+
+    <div id="state-summary" class="tab-content active">
+      <table>
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Candidates</th>
+            <th>Avg Suitability</th>
+            <th>Avg Area (ha)</th>
+            <th>Avg Power Dist (km)</th>
+            <th>Avg Water Dist (km)</th>
+          </tr>
+        </thead>
+        <tbody id="state-table-body">
+          <!-- Dynamic Injection -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="region-summary" class="tab-content">
+      <table>
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>State</th>
+            <th>Candidates</th>
+            <th>Avg Suitability</th>
+            <th>Avg Area (ha)</th>
+            <th>Avg Power Dist (km)</th>
+            <th>Avg Water Dist (km)</th>
+          </tr>
+        </thead>
+        <tbody id="region-table-body">
+          <!-- Dynamic Injection -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// Data injected by python builder
+const candidatesData = {{ CANDIDATES_JSON }};
+const stateData = {{ STATE_JSON }};
+const regionData = {{ REGION_JSON }};
+
+// Local Macquarie Precinct constraints layers injected by python builder
+const precinctBoundaryGeoJSON = {{ PRECINCT_BOUNDARY_JSON }};
+const netDevelopableZonesGeoJSON = {{ NET_DEVELOPABLE_JSON }};
+const pipelineCorridorsGeoJSON = {{ PIPELINES_JSON }};
+const railNetworkGeoJSON = {{ RAIL_NETWORK_JSON }};
+const biodiversityConstraintsGeoJSON = {{ BIODIVERSITY_JSON }};
+
+// Initialize Dashboard Metrics
+document.getElementById('stat-total').textContent = candidatesData.length;
+const statesSet = new Set(candidatesData.map(c => c.state_name));
+document.getElementById('stat-states').textContent = statesSet.size;
+if (candidatesData.length > 0) {
+  document.getElementById('stat-best').textContent = `${candidatesData[0].town_name} (${candidatesData[0].suitability_score.toFixed(3)})`;
+}
+
+// Leaflet Map Initialization
+const map = L.map('map').setView([-32.95, 151.35], 12); // Centered on Macquarie Coal Complex by default
+
+// Basemaps
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href=\"https://openstreetmap.org/copyright\">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+// WMS National Background Layers
+const gaTopo = L.tileLayer.wms('https://services.ga.gov.au/gis/services/National_Map_basemap/MapServer/WMSServer', {
+  layers: '0',
+  format: 'image/png',
+  transparent: true,
+  opacity: 0.6,
+  attribution: 'Geoscience Australia'
+});
+
+const gaElectricity = L.tileLayer.wms('https://services.ga.gov.au/gis/services/Electricity_Infrastructure/MapServer/WMSServer', {
+  layers: 'Substations,Transmission_Lines',
+  format: 'image/png',
+  transparent: true,
+  opacity: 0.8,
+  attribution: 'Geoscience Australia'
+});
+
+const gaWater = L.tileLayer.wms('https://services.ga.gov.au/gis/services/National_Surface_Water_Information_System/MapServer/WMSServer', {
+  layers: 'National_Surface_Water_Information_System',
+  format: 'image/png',
+  transparent: true,
+  opacity: 0.7,
+  attribution: 'Geoscience Australia'
+});
+
+// Create Local Vector Layers group
+const localPrecinctBoundary = L.geoJSON(precinctBoundaryGeoJSON, {
+  style: { color: "#3b82f6", weight: 3, fillOpacity: 0.03, dashArray: "5, 5" }
+}).addTo(map);
+
+const localNetDevelopable = L.geoJSON(netDevelopableZonesGeoJSON, {
+  style: { color: "#10b981", weight: 2, fillColor: "#10b981", fillOpacity: 0.25 }
+}).addTo(map);
+
+const localPipelines = L.geoJSON(pipelineCorridorsGeoJSON, {
+  style: { color: "#fbbf24", weight: 3, opacity: 0.85 }
+}).addTo(map);
+
+const localRail = L.geoJSON(railNetworkGeoJSON, {
+  style: { color: "#6b7280", weight: 3, opacity: 0.9 }
+}).addTo(map);
+
+const localBiodiversity = L.geoJSON(biodiversityConstraintsGeoJSON, {
+  style: { color: "#ef4444", weight: 0.5, fillColor: "#ef4444", fillOpacity: 0.15 }
+}).addTo(map);
+
+// Add Layer Control
+const baseLayers = {
+  "OpenStreetMap": osm,
+  "Satellite Imagery": satellite
+};
+
+const overlays = {
+  "GA National Topography": gaTopo,
+  "GA Power Grid (WMS)": gaElectricity,
+  "GA Surface Water (WMS)": gaWater,
+  "Macquarie Precinct Boundary": localPrecinctBoundary,
+  "Macquarie Net Developable": localNetDevelopable,
+  "Macquarie Pipeline Corridors": localPipelines,
+  "Macquarie Rail Network": localRail,
+  "Macquarie Bio Constraints": localBiodiversity
+};
+
+L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(map);
+
+// Color scale function
+function getColor(score) {
+  return score >= 0.85 ? '#10b981' :
+         score >= 0.70 ? '#f59e0b' :
+                         '#ef4444';
+}
+
+// Render markers
+const markerMap = {};
+candidatesData.forEach((c, index) => {
+  if (!c.geometry) return;
+  
+  // Extract coordinate
+  let lat, lon;
+  if (c.geometry.startsWith('POINT')) {
+    const coords = c.geometry.replace('POINT(', '').replace(')', '').split(' ');
+    lon = parseFloat(coords[0]);
+    lat = parseFloat(coords[1]);
+  } else {
+    lat = -32.95;
+    lon = 151.35;
+  }
+
+  const scoreClass = c.suitability_score >= 0.85 ? 'score-high' : (c.suitability_score >= 0.70 ? 'score-med' : 'score-low');
+  
+  const marker = L.circleMarker([lat, lon], {
+    radius: 8 + (c.suitability_score * 6),
+    fillColor: getColor(c.suitability_score),
+    color: '#ffffff',
+    weight: 1.5,
+    opacity: 1,
+    fillOpacity: 0.85
+  }).addTo(map);
+
+  const popupContent = `
+    <div style="font-family: 'Outfit', sans-serif;">
+      <h3 style="margin: 0 0 0.5rem 0; color: #60a5fa;">${c.town_name}</h3>
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <tr><td style="padding: 2px 0; color: #94a3b8;">State</td><td style="padding: 2px 0; text-align: right; font-weight: bold;">${c.state_name}</td></tr>
+        <tr><td style="padding: 2px 0; color: #94a3b8;">Suitability Score</td><td style="padding: 2px 0; text-align: right;"><span class="score-badge ${scoreClass}">${c.suitability_score.toFixed(3)}</span></td></tr>
+        <tr><td style="padding: 2px 0; color: #94a3b8;">Power Grid Distance</td><td style="padding: 2px 0; text-align: right; font-weight: bold;">${c.dist_to_substation_km ? c.dist_to_substation_km.toFixed(2) + ' km' : 'N/A'}</td></tr>
+        <tr><td style="padding: 2px 0; color: #94a3b8;">Recycled Water Dist</td><td style="padding: 2px 0; text-align: right; font-weight: bold;">${c.dist_to_wwtw_km ? c.dist_to_wwtw_km.toFixed(2) + ' km' : 'N/A'}</td></tr>
+        <tr><td style="padding: 2px 0; color: #94a3b8;">Area Available</td><td style="padding: 2px 0; text-align: right; font-weight: bold;">${c.area_ha.toFixed(1)} ha</td></tr>
+      </table>
+    </div>
+  `;
+  marker.bindPopup(popupContent);
+  markerMap[c.mb_code21] = marker;
+});
+
+// Build Leaderboard Table
+const tableBody = document.querySelector('#candidates-table tbody');
+candidatesData.forEach(c => {
+  const tr = document.createElement('tr');
+  const scoreClass = c.suitability_score >= 0.85 ? 'score-high' : (c.suitability_score >= 0.70 ? 'score-med' : 'score-low');
+  
+  tr.innerHTML = `
+    <td>
+      <div style="font-weight: 600;">${c.town_name}</div>
+      <div style="font-size: 0.75rem; color: var(--text-secondary);">${c.state_name}</div>
+    </td>
+    <td><span class="score-badge ${scoreClass}">${c.suitability_score.toFixed(3)}</span></td>
+    <td style="font-family: 'JetBrains Mono', monospace;">${c.dist_to_substation_km ? c.dist_to_substation_km.toFixed(2) + ' km' : 'N/A'}</td>
+    <td style="font-family: 'JetBrains Mono', monospace;">${c.dist_to_wwtw_km ? c.dist_to_wwtw_km.toFixed(2) + ' km' : 'N/A'}</td>
+    <td style="font-family: 'JetBrains Mono', monospace;">${c.area_ha.toFixed(1)} ha</td>
+  `;
+
+  tr.addEventListener('click', () => {
+    const marker = markerMap[c.mb_code21];
+    if (marker) {
+      // Find valid coordinates
+      let lat, lon;
+      if (c.geometry.startsWith('POINT')) {
+        const coords = c.geometry.replace('POINT(', '').replace(')', '').split(' ');
+        lon = parseFloat(coords[0]);
+        lat = parseFloat(coords[1]);
+        map.setView([lat, lon], 11);
+      } else {
+        lat = -32.95;
+        lon = 151.35;
+        map.setView([lat, lon], 14);
+      }
+      marker.openPopup();
+    }
+  });
+
+  tableBody.appendChild(tr);
+});
+
+// Build State Benchmarking Table
+const stateTableBody = document.getElementById('state-table-body');
+stateData.forEach(s => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td style="font-weight: 600;">${s.state_name}</td>
+    <td>${s.candidate_count}</td>
+    <td><span class="score-badge score-high">${s.avg_suitability_score.toFixed(3)}</span></td>
+    <td>${s.avg_area_ha.toFixed(1)} ha</td>
+    <td>${s.avg_dist_substation_km.toFixed(2)} km</td>
+    <td>${s.avg_dist_wwtw_km.toFixed(2)} km</td>
+  `;
+  stateTableBody.appendChild(tr);
+});
+
+// Build Region Benchmarking Table
+const regionTableBody = document.getElementById('region-table-body');
+regionData.forEach(r => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td style="font-weight: 600;">${r.region_name}</td>
+    <td>${r.state_name}</td>
+    <td>${r.candidate_count}</td>
+    <td><span class="score-badge score-high">${r.avg_suitability_score.toFixed(3)}</span></td>
+    <td>${r.avg_area_ha.toFixed(1)} ha</td>
+    <td>${r.avg_dist_substation_km.toFixed(2)} km</td>
+    <td>${r.avg_dist_wwtw_km.toFixed(2)} km</td>
+  `;
+  regionTableBody.appendChild(tr);
+});
+
+// Tab Switcher
+function switchTab(evt, tabId) {
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  
+  document.getElementById(tabId).classList.add('active');
+  evt.currentTarget.classList.add('active');
+}
+
+// Add Map Legend
+const legend = L.control({position: 'bottomright'});
+legend.onAdd = function (map) {
+  const div = L.DomUtil.create('div', 'info legend');
+  div.innerHTML = `
+    <div style="font-weight: bold; margin-bottom: 0.5rem; font-size: 0.8rem;">Suitability</div>
+    <i style="background:#10b981"></i> High (&ge; 0.85)<br>
+    <i style="background:#f59e0b"></i> Med (0.70 - 0.85)<br>
+    <i style="background:#ef4444"></i> Low (&lt; 0.70)
+  `;
+  return div;
+};
+legend.addTo(map);
+
+</script>
+</body>
+</html>
