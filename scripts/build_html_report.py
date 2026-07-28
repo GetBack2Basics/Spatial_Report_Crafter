@@ -1153,7 +1153,7 @@ def main():
     # Render HTML
     template = Template(HTML_TEMPLATE)
     html = template.render(
-        date=datetime.now().strftime("%d %B %Y %H:%M"),
+        date=datetime.now().astimezone().strftime("%d %B %Y %I:%M %p %Z"),
         total_new=total_new,
         total_drift=total_drift,
         total_high_risk=total_high,
