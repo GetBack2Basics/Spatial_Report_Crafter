@@ -1,6 +1,6 @@
 # Spatial Report Crafter
 
-**Spatial Report Crafter** is a generalized utility for generating premium, offline-ready interactive spatial HTML reports and reconciliation reviews from diverse geospatial backends. It supports both cloud database queries (Wherobots / Apache Sedona) and offline desktop databases (OGC GeoPackage).
+**Spatial Report Crafter** is a generalized utility for generating, offline-ready interactive spatial HTML reports and reconciliation reviews from diverse geospatial backends. It supports both cloud database queries (Wherobots / Apache Sedona) and offline desktop databases (OGC GeoPackage).
 
 ---
 
