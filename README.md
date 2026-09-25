@@ -160,5 +160,16 @@ python scripts/build_html_report.py \
 
 ---
 
+## 📴 Offline / No-Cloud Option
+
+Not every deployment has a cloud spatial engine available. For teams
+building standalone reports from local sources (Excel workbooks,
+GeoPackages, File Geodatabases) with no server and $0 cloud compute:
+
+- **Lessons learned**: [`docs/lessons_learned_offline_case_study.md`](docs/lessons_learned_offline_case_study.md) — a schema-free write-up of patterns discovered running this method fully offline (companion data files instead of `fetch()`, viewport-triggered spatial chunk loading, geometry-appropriate rendering, a client-side query engine, `localStorage` saved queries, and more).
+- **Reusable code**: [`scripts/offline_toolkit/`](scripts/offline_toolkit/) — the schema-free, standalone implementations of those patterns.
+
+---
+
 ## 📜 License
 MIT License — Copyright (c) 2026 George Chandeep Corea (GetBack2Basics).
