@@ -87,16 +87,42 @@ A complete **Spatial Report Crafter** document incorporates the following standa
 | :--- | :--- |
 | **1. Header & KPI Metric Strip** | Displays high-level KPIs with CSS hover tooltips and accessible `ℹ` footnote links (e.g. Candidates, Geometries, Join Speed, Batch Compute Cost). |
 | **2. Multi-Factor What-If Sandbox** | Real-time sliders for Power, Recycled Water, Sensitive Setbacks, and Parcel Size, with interactive scenario toggle switches. |
-| **3. Interactive Continental Map** | Leaflet/MapLibre map with shaded relief basemaps, custom collapsible layer controls, clustered substations, and live WMS/ArcGIS Dynamic feeds (e.g. Geoscience Australia electricity grid). |
-| **4. Ranked Leaderboard & Search** | Sortable table with dynamic score bars, locality filters, and live Lot/Plan cadastre search (e.g. `101//DP755262`). Clicking rows smoothly pans the map. |
-| **5. Proponent Audit Panel** | Side-by-side ground-truth audit verifying net developable pad space (deducting riparian, pipeline, slope >5%), topological network routing (1.32x winding factor), and thermodynamic heat drop. |
-| **6. Multi-Tab Evidence Trail** | 10 integrated tabs: State Benchmarking, Regional Aggregates, Data Sources & Volumes, Lakehouse Storage Directory Tree, Table Footprints, Whitepapers, Speed Mechanics, Calculations & SQL Trail, Recent Changes, and Next Steps. |
+| **3. Interactive WebGL Map** | Leaflet/MapLibre map with 75% dark slate background mask, 0.0 transparent focus symbology, draggable floating HUD popups, and live WMS/ArcGIS feeds. |
+| **4. Ranked Leaderboard & Search** | Sortable table with dynamic score bars, locality filters, and live Lot/Plan cadastre search (e.g. `101//DP755262`). Clicking rows synchronously highlights map features without viewport jumps. |
+| **5. Live Dynamic Cost Worksheet** | Interactive proposal and deliverables calculation table with real-time recalculations (`hours × rate`), category subtotals, grand totals, row reordering (`▲`/`▼`), and add/delete actions. |
+| **6. Architectural Lessons Learned** | Structured interactive review cards documenting decoupled architecture, topological contiguity solvers, and time & cost protocols. |
+| **7. Proponent Audit Panel** | Side-by-side ground-truth audit verifying net developable pad space (deducting riparian, pipeline, slope >5%), topological network routing (1.32x winding factor), and thermodynamic heat drop. |
+| **8. Multi-Tab Evidence Trail** | 10 integrated tabs: State Benchmarking, Regional Aggregates, Data Sources & Volumes, Lakehouse Storage Directory Tree, Table Footprints, Whitepapers, Speed Mechanics, Calculations & SQL Trail, Recent Changes, and Next Steps. |
 
 ---
 
-## 💻 Quickstart & Usage
+## 💻 Quickstart & Python SDK
 
-### 1. Cloud-Based Spatial Reporting (Wherobots / Apache Sedona)
+### 1. Zero-Server Spatial Suite (Python SDK)
+
+Generate complete interactive spatial applications with live calculation worksheets and lessons learned:
+
+```python
+from spatial_report_crafter import SpatialReportCrafter
+
+crafter = SpatialReportCrafter(
+    title="National Siting & Districting Suite",
+    mask_opacity=0.75,
+    include_cost_worksheet=True,      # Turnkey live interactive calculation worksheet
+    include_lessons_learned=True       # Turnkey architectural lessons learned cards
+)
+
+crafter.generate_html_report(
+    territories_gdf=territories,
+    postcodes_gdf=postcodes,
+    seeds_gdf=seeds,
+    catchments_gdf=catchments,
+    output_html_path="docs/districting_suite.html",
+    summary_stats={"total_candidates": 150}
+)
+```
+
+### 2. Cloud-Based Spatial Reporting (Wherobots / Apache Sedona)
 
 Generate interactive, config-driven reports directly from cloud database clusters:
 
@@ -108,7 +134,7 @@ python scripts/build_config_report.py \
   --output Siting_Suitability_Report.html
 ```
 
-### 2. Offline GIS Desktop Reporting (GeoPackage)
+### 3. Offline GIS Desktop Reporting (GeoPackage)
 
 Build interactive reconciliation reviews and displacement maps from local GeoPackage layers:
 
@@ -117,6 +143,13 @@ python scripts/build_html_report.py \
   --gpkg "Pending Data/Critical_Review_Assets.gpkg" \
   --output Reconciliation_Report.html
 ```
+
+---
+
+## 📚 Standards & Architecture References
+
+- **[Architectural Lessons Learned & Mechanics](docs/LESSONS_LEARNED.md)**: Detailed breakdown of decoupled architecture, graph contiguity solvers, and client shaders.
+- **[Time & Cost Tracking Protocol Standard](docs/TIME_AND_COST_TRACKING_STANDARD.md)**: Mandatory repository tracking standard and proposal live worksheet integration guidelines.
 
 ---
 
@@ -162,3 +195,4 @@ python scripts/build_html_report.py \
 
 ## 📜 License
 MIT License — Copyright (c) 2026 George Chandeep Corea (GetBack2Basics).
+
