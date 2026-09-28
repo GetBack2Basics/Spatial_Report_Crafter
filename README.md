@@ -104,7 +104,7 @@ Across enterprise spatial and commercial districting projects, **Spatial Report 
 Traditional geospatial projects suffer from forced tradeoffs between static non-interactive PDFs and costly, slow-to-deploy enterprise GIS web servers (GeoServer, ArcGIS Enterprise, Mapbox Studio).  
 **The Solution:** Decouple immediate analytical deliverables from long-term enterprise GIS hosting:
 - **Spatial Report Crafter ("Map in a Box"):** Standalone, zero-server WebGL HTML deliverables generated for instant stakeholder review, QA validation, and interactive what-if modeling. Runs 100% in client browsers with **$0.00 recurring cloud query cost**.
-- **Enterprise GIS Platform (e.g., Mangoesmapping GEM):** Role-based multi-user management, layer publishing, field survey data collection, and ongoing operational asset tracking.
+- **Enterprise Geospatial Platform:** Role-based multi-user management, layer publishing, field survey data collection, and ongoing operational asset tracking (e.g. ArcGIS Enterprise, GeoServer, or custom enterprise portals).
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -146,9 +146,48 @@ AI-assisted and automated spatial pipelines require radical cost accountability.
 
 ---
 
-## 🎛️ New Turnkey Options in `SpatialReportCrafter`
+## 📝 Interactive Proposal Crafter & Live Dynamic Worksheets
 
-The `SpatialReportCrafter` Python SDK exposes modular options to embed dynamic cost worksheets and architectural review cards:
+**Spatial Report Crafter** includes a dedicated engine for compiling commercial proposals and scopes of work into **client-editable HTML applications** with embedded dynamic calculation spreadsheets.
+
+### Key Capabilities:
+- **Automated Row Calculations:** Typing into any task's **Hours** or **Rate** field recalculates `hours × rate` for that row in real-time.
+- **Dynamic Category Subtotals & Grand Totals:** Live updates across lead specialist, platform integration, and infrastructure pass-through categories.
+- **Row Reordering & Dynamic Additions:** Move deliverables up or down (`▲`/`▼`), add new tasks (`➕`), or delete items (`✕`).
+- **Edit Mode vs. Locked View:** Toggle between `✏️ Edit Mode` and clean, presentation-ready `🔒 Locked View`.
+- **1-Click Google Docs Clipboard Exporter:** Click `📋 Copy for Google Docs` to strip form inputs and copy semantic, clean tables ready for direct paste (`Ctrl+V` / `Cmd+V`) into Google Docs or Word.
+- **Local Browser Persistence:** Automatically caches user adjustments via `localStorage`.
+
+### 1. Compile via CLI:
+```bash
+python scripts/build_proposal_document.py \
+  --input my_proposal.md \
+  --output interactive_proposal.html \
+  --title "Strategic Siting & Districting Proposal"
+```
+
+### 2. Compile via Python SDK:
+```python
+from spatial_report_crafter import ProposalDocumentCrafter
+
+crafter = ProposalDocumentCrafter(
+    title="National Siting & Districting Proposal",
+    storage_key="my_proposal_v1_live"
+)
+
+crafter.compile_html(
+    markdown_text=open("proposal.md", encoding="utf-8").read(),
+    output_path="docs/proposal_interactive.html"
+)
+```
+
+👉 **Full Proposal Guide:** See [**`docs/PROPOSAL_CRAFTER_GUIDE.md`**](docs/PROPOSAL_CRAFTER_GUIDE.md) for complete customization instructions, category schemas, and export workflows.
+
+---
+
+## 🎛️ Turnkey Options in `SpatialReportCrafter`
+
+The `SpatialReportCrafter` Python SDK exposes modular options to embed dynamic cost worksheets and architectural review cards directly into Map-in-a-Box applications:
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -160,7 +199,7 @@ The `SpatialReportCrafter` Python SDK exposes modular options to embed dynamic c
 | `worksheet_config` | `dict` | `None` | Custom categories, deliverable line items, and partner platform quote placeholders. |
 | `lessons_learned_config`| `dict` | `None` | Custom lessons, badges, and architectural insights. |
 
-### Complete Python API Example:
+### Complete Map-in-a-Box Python API Example:
 
 ```python
 from spatial_report_crafter import SpatialReportCrafter
@@ -190,6 +229,7 @@ crafter.generate_html_report(
 
 ## 📚 Standards & Architecture References
 
+- **[Proposal Crafter & Live Worksheet Guide](docs/PROPOSAL_CRAFTER_GUIDE.md)**: Guide on compiling editable proposal documents with live calculation worksheets.
 - **[Architectural Lessons Learned & Mechanics](docs/LESSONS_LEARNED.md)**: Comprehensive deep dive into decoupled architecture, graph contiguity solvers, and client shaders.
 - **[Time & Cost Tracking Protocol Standard](docs/TIME_AND_COST_TRACKING_STANDARD.md)**: Mandatory repository tracking standard and proposal live worksheet integration guidelines.
 

@@ -12,7 +12,7 @@ Traditional spatial initiatives force a binary choice: either deliver non-intera
 ### The Solution:
 **Decouple immediate analytical deliverables from long-term enterprise platform integration:**
 1. **Spatial Report Crafter ("Map in a Box"):** Zero-server, standalone WebGL HTML deliverables generated for instant stakeholder review, QA validation, and interactive what-if modeling. Runs 100% in client browsers with **$0.00 recurring cloud query cost**.
-2. **Enterprise Geospatial Platform (e.g. Mangoesmapping GEM):** Role-based multi-user management, layer publishing, field survey data collection, and ongoing operational spatial asset tracking.
+2. **Enterprise Geospatial Platform:** Role-based multi-user management, layer publishing, field survey data collection, and ongoing operational spatial asset tracking (e.g. ArcGIS Enterprise, GeoServer, or custom enterprise portals).
 
 ```
 +-----------------------------------------------------------------------------------+

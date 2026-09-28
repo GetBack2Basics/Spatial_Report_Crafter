@@ -7,7 +7,7 @@
 ## 1. Objectives & Principles
 
 1. **Radical Transparency:** Clear attribution of human effort (PM, client review, QA sign-off), machine AI orchestration time, cloud compute runtimes (GCE, Valhalla, Sedona), and platform hosting.
-2. **Dynamic Worksheets vs. Static PDF Tables:** Proposals must provide live interactive worksheets where hours and rates can be adjusted with instant subtotal and grand total recalculation, dynamic custom line-item additions (`+ Add Item`), and customizable blank points for partner platform subscriptions (e.g. Mangoesmapping GEM).
+2. **Dynamic Worksheets vs. Static PDF Tables:** Proposals must provide live interactive worksheets where hours and rates can be adjusted with instant subtotal and grand total recalculation, dynamic custom line-item additions (`+ Add Item`), and customizable blank points for partner platform subscriptions (e.g. enterprise software licenses or custom hosting).
 3. **Capacity & Margin Reconciliation:** Continuous tracking of spent actuals against budget baselines prevents scope creep and protects project profitability.
 4. **Zero-Hallucination Triad QA:** Reconciling Viewport Feature Count == Cloud Storage Records == Authoritative Source Records.
 
@@ -58,7 +58,7 @@ When delivering spatial QA suites or commercial proposals via `SpatialReportCraf
    - `include_lessons_learned=True`: Embeds structured architectural lessons learned cards documenting graph adjacency solvers, zero-server compute, and time & cost protocols.
 2. **Live Number Inputs**: Hourly allocations and unit rates are editable `<input type="number">` fields.
 3. **Real-Time Recalculation**: Changing any value instantly updates row totals (`hours × rate`), subtotal summaries, and grand totals across the document.
-4. **Partner Platform Blank Point**: Partner subscriptions (e.g., Mangoesmapping GEM Platform licenses, user seats, and hosting SLAs) are provided as customizable line items with initial blank values (`--` / `$0.00`) ready for partner pricing.
+4. **Partner Platform Blank Point**: Partner subscriptions (e.g., enterprise GIS platform licenses, user seats, and hosting SLAs) are provided as customizable line items with initial blank values (`--` / `$0.00`) ready for partner pricing.
 5. **Google Docs & Print Serialization**: Export mechanisms cleanly serialize active input values into standard table text so the document pastes seamlessly into Google Docs or exports to PDF without raw form inputs.
 
 ### Python API Example:
