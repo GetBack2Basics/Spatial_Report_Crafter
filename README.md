@@ -96,22 +96,86 @@ A complete **Spatial Report Crafter** document incorporates the following standa
 
 ---
 
-## 💻 Quickstart & Python SDK
+## 💡 Key Architectural Lessons Learned & Engineering Innovations
 
-### 1. Zero-Server Spatial Suite (Python SDK)
+Across enterprise spatial and commercial districting projects, **Spatial Report Crafter** incorporates six core architectural lessons:
 
-Generate complete interactive spatial applications with live calculation worksheets and lessons learned:
+### 1. Decoupled Architecture: Standalone Deliverables vs. Enterprise Platform
+Traditional geospatial projects suffer from forced tradeoffs between static non-interactive PDFs and costly, slow-to-deploy enterprise GIS web servers (GeoServer, ArcGIS Enterprise, Mapbox Studio).  
+**The Solution:** Decouple immediate analytical deliverables from long-term enterprise GIS hosting:
+- **Spatial Report Crafter ("Map in a Box"):** Standalone, zero-server WebGL HTML deliverables generated for instant stakeholder review, QA validation, and interactive what-if modeling. Runs 100% in client browsers with **$0.00 recurring cloud query cost**.
+- **Enterprise GIS Platform (e.g., Mangoesmapping GEM):** Role-based multi-user management, layer publishing, field survey data collection, and ongoing operational asset tracking.
+
+```
++-----------------------------------------------------------------------------------+
+|                           DECOUPLED SOLUTION ARCHITECTURE                         |
+|                                                                                   |
+|   ┌─────────────────────────────────────────┐     ┌───────────────────────────┐   |
+|   │   SPATIAL REPORT CRAFTER (INNOVATION)   │     │  ENTERPRISE PLATFORM      │   |
+|   ├─────────────────────────────────────────┤     ├───────────────────────────┤   |
+|   │ • Zero-Server Standalone WebGL HTML     │ ──► │ • Multi-User Permissions  │   |
+|   │ • Sub-Millisecond Multi-Million Sliders │     │ • Long-Term Asset Hosting │   |
+|   │ • Topological Contiguity Solver         │     │ • Field Survey Sync       │   |
+|   │ • Live Interactive Cost Worksheet       │     │ • Enterprise GIS Layering │   |
+|   └─────────────────────────────────────────┘     └───────────────────────────┘   |
++-----------------------------------------------------------------------------------+
+```
+
+### 2. Strict Topological Contiguity & Island-Bridge Routing
+Naive spatial clustering based purely on centroid Euclidean distance or travel-time produces non-contiguous territory fragments and isolated spatial islands across water bodies or mountain ranges.  
+**The Solution:**
+- **Boundary-Edge Adjacency Graphs:** Polygons can only merge into a seed territory if they share a physical boundary edge (`ST_Touches` / polygon adjacency graph).
+- **Island-Bridge Routing:** Coastal islands and peninsulas are mapped via road network bridge/ferry paths rather than line-of-sight distance.
+- **Automated Contiguity Certification:** Verification tests `len(shapely.ops.polygonize(unary_union)) == 1` for every territory before report rendering.
+
+### 3. Zero-Server WebGL Client Shaders (< 1 ms Reactive Sliders)
+Running spatial queries or demographic aggregations against cloud databases for every slider movement introduces unacceptable latency (500ms–2s) and high cloud query bills.  
+**The Solution:** Compute spatial joins once during compilation and embed pre-aggregated statistics into client-side integer bitmasks and GPU shaders. Slider adjustments recalculate composite scores and redraw millions of points in **< 1 millisecond** directly on user GPUs.
+
+### 4. High-Contrast 75% Dark Mask Symbology
+When highlighting specific candidate sites or franchise zones, typical opaque choropleth maps obscure underlying satellite imagery and street grids.  
+**The Solution:** Apply a **0.0 fill opacity (100% transparent interior)** with a vibrant cyan border (`#38bdf8`) on active selections, paired with a **75% dark slate grey mask (`#64748b`, 0.75 opacity)** on background areas.
+
+### 5. Screen-Space Detachable Draggable HUD Popups
+Standard map popups are anchored to geographic coordinates, meaning panning or zooming the map moves the scorecard off-screen.  
+**The Solution:** When a user drags a popup, it detaches from map coordinate tracking into an absolute screen-space floating HUD panel that stays fixed on screen while the user freely navigates the map.
+
+### 6. Standardized Time & Cost Tracking Protocol (TCTP)
+AI-assisted and automated spatial pipelines require radical cost accountability.  
+**The Solution:** Maintain a continuous, auditable [`TIME_AND_COST_LOG.md`](docs/TIME_AND_COST_TRACKING_STANDARD.md) tracking human review time, AI machine orchestration, and cloud VM/GPU compute hours.
+
+---
+
+## 🎛️ New Turnkey Options in `SpatialReportCrafter`
+
+The `SpatialReportCrafter` Python SDK exposes modular options to embed dynamic cost worksheets and architectural review cards:
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `include_cost_worksheet` | `bool` | `False` | Embeds a live, reactive cost & deliverables worksheet with real-time recalculations (`hours × rate`), row reordering (`▲`/`▼`), item additions (`➕`), and deletions (`✕`). |
+| `include_lessons_learned` | `bool` | `False` | Embeds structured architectural lessons learned cards documenting decoupled architecture, graph contiguity, and zero-server shaders. |
+| `mask_opacity` | `float` | `0.75` | Controls background grey mask opacity (e.g. `0.75` for 75% dark suppression). |
+| `mask_color` | `str` | `"#64748b"` | Hex color for the non-selected spatial background mask. |
+| `highlight_color` | `str` | `"#38bdf8"` | Accent color for selected territory boundaries and active controls. |
+| `worksheet_config` | `dict` | `None` | Custom categories, deliverable line items, and partner platform quote placeholders. |
+| `lessons_learned_config`| `dict` | `None` | Custom lessons, badges, and architectural insights. |
+
+### Complete Python API Example:
 
 ```python
 from spatial_report_crafter import SpatialReportCrafter
 
+# Initialize with turnkey live worksheet and architectural lessons options
 crafter = SpatialReportCrafter(
     title="National Siting & Districting Suite",
+    subtitle="Zero-Server WebGL Spatial Report Crafter",
     mask_opacity=0.75,
-    include_cost_worksheet=True,      # Turnkey live interactive calculation worksheet
-    include_lessons_learned=True       # Turnkey architectural lessons learned cards
+    highlight_color="#38bdf8",
+    include_cost_worksheet=True,      # Enables live dynamic calculation worksheet
+    include_lessons_learned=True       # Enables architectural lessons learned tab
 )
 
+# Compiles everything into a single standalone zero-server WebGL HTML suite
 crafter.generate_html_report(
     territories_gdf=territories,
     postcodes_gdf=postcodes,
@@ -122,33 +186,11 @@ crafter.generate_html_report(
 )
 ```
 
-### 2. Cloud-Based Spatial Reporting (Wherobots / Apache Sedona)
-
-Generate interactive, config-driven reports directly from cloud database clusters:
-
-```bash
-# Ensure WHEROBOTS_API_KEY is configured in your environment or .env
-python scripts/build_config_report.py \
-  --config configs/national_suitability.json \
-  --template templates/national_suitability_report_template.html \
-  --output Siting_Suitability_Report.html
-```
-
-### 3. Offline GIS Desktop Reporting (GeoPackage)
-
-Build interactive reconciliation reviews and displacement maps from local GeoPackage layers:
-
-```bash
-python scripts/build_html_report.py \
-  --gpkg "Pending Data/Critical_Review_Assets.gpkg" \
-  --output Reconciliation_Report.html
-```
-
 ---
 
 ## 📚 Standards & Architecture References
 
-- **[Architectural Lessons Learned & Mechanics](docs/LESSONS_LEARNED.md)**: Detailed breakdown of decoupled architecture, graph contiguity solvers, and client shaders.
+- **[Architectural Lessons Learned & Mechanics](docs/LESSONS_LEARNED.md)**: Comprehensive deep dive into decoupled architecture, graph contiguity solvers, and client shaders.
 - **[Time & Cost Tracking Protocol Standard](docs/TIME_AND_COST_TRACKING_STANDARD.md)**: Mandatory repository tracking standard and proposal live worksheet integration guidelines.
 
 ---
